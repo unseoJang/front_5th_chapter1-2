@@ -24,6 +24,16 @@ export function setupEventListeners(root) {
   });
 }
 
+/**
+ * 이벤트 리스너 추가
+ * @param {*} element // 이벤트를 추가할 엘리먼트
+ * @param {*} eventType // 추가할 이벤트 타입 (예: 'click', 'input')
+ * @param {*} handler // 추가할 핸들러 함수
+ * @returns
+ * @description 이벤트 핸들러를 element에 추가합니다. 이벤트 타입에 따라 핸들러를 저장합니다.
+ * 이벤트가 발생하면 해당 핸들러가 실행됩니다.
+ * 이벤트 위임을 사용하여 루트 엘리먼트에 클릭 이벤트 리스너를 설정합니다.
+ */
 export function addEvent(element, eventType, handler) {
   if (!eventStore.has(element)) {
     eventStore.set(element, {});
