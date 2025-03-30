@@ -1,3 +1,5 @@
+import { getTypes } from "../utils/getTypes";
+
 /**
  * 주어진 VNode를 정규화
  *
@@ -11,10 +13,9 @@
  */
 export function normalizeVNode(vNode) {
   // 타입 불러오기
-  const getType = (vNode) => (vNode === null ? "null" : typeof vNode);
 
   // 인자값의 타입 변수
-  const vNodeType = getType(vNode);
+  const vNodeType = getTypes(vNode);
 
   // 통과되면 안되는 값들
   const invalidTypes = ["null", "undefined", "boolean"];
@@ -45,7 +46,7 @@ export function normalizeVNode(vNode) {
   // Falsy 값 (null, undefined, false)은 자식 노드에서 제거되어야 한다. -> vNode.children이 없으면 빈 배열
   const normalizedChildren = vNode.children
     ? vNode.children
-        .filter((v) => !invalidTypes.includes(getType(v)))
+        .filter((v) => !invalidTypes.includes(getTypes(v)))
         .map((v) => (typeof v === "object" ? normalizeVNode(v) : v))
     : [];
 
