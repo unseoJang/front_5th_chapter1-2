@@ -1,6 +1,17 @@
 import { getTypes } from "../utils/getTypes";
 import { addEvent } from "./eventManager";
 
+/**
+ * createElement
+ * @param { * } vNode // 가상 DOM 노드
+ * @returns { * } $el // 실제 DOM 엘리먼트
+ * @description
+ * - 가상 DOM 노드를 받아서 실제 DOM 엘리먼트를 생성하는 함수
+ * - 이 함수는 가상 DOM을 실제 DOM으로 변환하는 역할을 한다.
+ * - 가상 DOM 노드의 타입에 따라 적절한 DOM 엘리먼트를 생성하고,
+ * - 필요한 경우 속성(props)과 자식 노드를 설정한다.
+ * - 이 함수는 React/JSX에서 사용하는 createElement와 유사한 역할을 한다.
+ */
 export function createElement(vNode) {
   const vNodeType = getTypes(vNode);
   const invalidTypes = ["null", "undefined", "boolean"];
