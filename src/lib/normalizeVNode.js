@@ -20,7 +20,7 @@ export function normalizeVNode(vNode) {
   const invalidTypes = ["null", "undefined", "boolean"];
 
   // 디버깅용 로그
-  console.log("vNode =>", vNode);
+  // console.log("vNode =>", vNode);
 
   // null, undefined, boolean 값은 빈 문자열로 변환되어야 한다.
   if (invalidTypes.includes(vNodeType)) {
@@ -39,7 +39,6 @@ export function normalizeVNode(vNode) {
       children: vNode.children,
     });
 
-    console.log("renderedVNode", renderedVNode.children);
     return normalizeVNode(renderedVNode);
   }
 
