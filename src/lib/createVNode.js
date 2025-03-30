@@ -1,11 +1,24 @@
-// 객체 반환
+/**
+ * 가상 DOM 노드를 생성합니다.
+ *
+ * @param {string | Function} type - 태그 이름(ex: "div") 또는 함수형 컴포넌트
+ * @param {Object|null} props - 요소의 속성(props), 없으면 null
+ * @param {...any} children - 자식 요소들. 문자열, 숫자, 배열, VNode 등 다양하게 올 수 있음
+ * @returns {{
+ *   type: string | Function,
+ *   props: Object|null,
+ *   children: any[]
+ * }} 생성된 VNode 객체
+ */
+
 export function createVNode(type, props, ...children) {
-  // console.log("type", type);
-  // console.log("props", props);
-  // console.log("children", children);
+  const flattenChildren = children
+    .flat(Infinity)
+    .filter((v) => v !== null && v !== undefined && v !== false); // 이 줄 꼭 필요
+
   return {
     type,
     props,
-    children: children.flat(Infinity), // React나 가상 DOM 기반으로 뭔가를 렌더링할 때 children을 배열로 받아서 사용하는 경우가 많은데, 실수로 중첩된 배열이 들어가는 경우가 있어요.
+    children: flattenChildren,
   };
 }
