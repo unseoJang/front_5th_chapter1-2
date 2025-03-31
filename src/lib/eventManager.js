@@ -40,7 +40,7 @@
 // 라는 요청을 받아서,
 // 📦 내부 저장소에 그 정보를 기록하는 함수야.
 const eventStore = new Map(); // 내부 이벤트 저장소 만들기 구조: element → { click: [handler1, handler2], input: [...] }
-const supportedEvents = ["click", "mouseover", "focus", "keydown"];
+const supportedEvents = ["click", "mouseover", "focus", "keydown", "submit"];
 
 /**
  * 이벤트 리스너 설정
