@@ -2,7 +2,7 @@
 
 ### 배포 링크
 
-https://unseoJang.github.io/front-5th-chapter1-2/
+https://unseojang.github.io/front_5th_chapter1-2/
 
 <!--
 배포 링크를 적어주세요
