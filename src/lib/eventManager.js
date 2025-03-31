@@ -40,6 +40,7 @@
 // 라는 요청을 받아서,
 // 📦 내부 저장소에 그 정보를 기록하는 함수야.
 const eventStore = new Map(); // 내부 이벤트 저장소 만들기 구조: element → { click: [handler1, handler2], input: [...] }
+const supportedEvents = ["click", "mouseover", "focus", "keydown"];
 
 /**
  * 이벤트 리스너 설정
@@ -52,24 +53,26 @@ const eventStore = new Map(); // 내부 이벤트 저장소 만들기 구조: el
  **/
 export function setupEventListeners(root) {
   //1. 루트에 클릭 리스너 등록
-  root.addEventListener("click", (e) => {
-    // 2. 이벤트 발생한 타겟 가져오기
-    let target = e.target;
-    //  3. 이벤트 전파 따라 위로 올라가며 탐색
-    while (target && target !== root) {
-      //4 . 해당 요소에 등록된 이벤트 핸들러 찾기
-      const events = eventStore.get(target);
-      const handlers = events?.["click"];
+  supportedEvents.forEach((type) => {
+    root.addEventListener(type, (e) => {
+      // 2. 이벤트 발생한 타겟 가져오기
+      let target = e.target;
+      //  3. 이벤트 전파 따라 위로 올라가며 탐색
+      while (target && target !== root) {
+        //4 . 해당 요소에 등록된 이벤트 핸들러 찾기
+        const events = eventStore.get(target);
+        const handlers = events?.[type];
 
-      // 5. 핸들러 실행
-      if (handlers) {
-        handlers.forEach((fn) => fn(e));
-        break; // 가장 가까운 한 요소만 실행 (React 스타일) 딱 한 번만 실행되게 함
+        // 5. 핸들러 실행
+        if (handlers) {
+          handlers.forEach((fn) => fn(e));
+          break; // 가장 가까운 한 요소만 실행 (React 스타일) 딱 한 번만 실행되게 함
+        }
+
+        // 6. 다음 부모로 타겟 이동
+        target = target.parentNode;
       }
-
-      // 6. 다음 부모로 타겟 이동
-      target = target.parentNode;
-    }
+    });
   });
 }
 

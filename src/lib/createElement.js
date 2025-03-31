@@ -52,15 +52,16 @@ export function createElement(vNode) {
  * 속성 업데이트
  * 이 함수는 **가상 DOM 노드의 속성(props)**을 받아서
  * 실제 DOM 엘리먼트($el)에 속성을 적용해주는 함수
- * @param { } $el
+ * @param {*} $el
  * @param {*} props
  */
 function updateAttributes($el, props) {
   if (props) {
     Object.entries(props).forEach(([key, value]) => {
-      if (key.startsWith("on")) {
+      if (key.startsWith("on") && typeof value === "function") {
         // 🔸 key가 "onClick", "onInput" 같은 이벤트면
         const eventName = key.slice(2).toLowerCase(); // "Click" → "click"
+        // console.log("🔧 addEvent:", key, "->", eventName, "on", $el);
         addEvent($el, eventName, value); // 이벤트 등록
       } else if (key === "className") {
         // 🔸 React/JSX에서의 className → 실제 DOM에선 class
