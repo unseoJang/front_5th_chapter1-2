@@ -1,6 +1,31 @@
 /** @jsx createVNode */
 import { createVNode } from "../../lib";
 import { toTimeFormat } from "../../utils/index.js";
+import { globalStore } from "../../stores";
+
+const LikeButton = ({ onClick, children, likeUsers, activationLike }) => {
+  const handleClick = (e) => {
+    e.preventDefault();
+    onClick?.();
+    const { loggedIn } = globalStore.getState();
+    if (loggedIn) {
+      console.log("좋아요 +1");
+    } else {
+      alert("로그인 후 이용해주세요");
+    }
+  };
+  return (
+    <span
+      onClick={(e) => {
+        e.preventDefault();
+        handleClick();
+      }}
+      className={`like-button cursor-pointer${activationLike ? " text-blue-500" : ""}`}
+    >
+      좋아요 {likeUsers.length}
+    </span>
+  );
+};
 
 export const Post = ({
   author,
@@ -19,11 +44,14 @@ export const Post = ({
       </div>
       <p>{content}</p>
       <div className="mt-2 flex justify-between text-gray-500">
-        <span
-          className={`like-button cursor-pointer${activationLike ? " text-blue-500" : ""}`}
+        <LikeButton
+          children={undefined}
+          likeUsers={likeUsers}
+          activationLike={activationLike}
+          onClick={undefined}
         >
-          좋아요 {likeUsers.length}
-        </span>
+          좋아요
+        </LikeButton>
         <span>댓글</span>
         <span>공유</span>
       </div>
