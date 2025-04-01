@@ -14,7 +14,7 @@ function login(username) {
 
 export const LoginPage = () => {
   const handleSubmit = (e) => {
-    console.log("submit 동작", e);
+    // console.log("submit 동작", e);
     e.preventDefault();
     const username = document.getElementById("username").value;
     login(username);
