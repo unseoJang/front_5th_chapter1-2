@@ -1,4 +1,5 @@
 // import { addEvent, removeEvent } from "./eventManager";
+import { removeEvent } from "./eventManager";
 import { createElement } from "./createElement.js";
 
 /**
@@ -34,7 +35,12 @@ function updateAttributes(target, originNewProps, originOldProps) {
   // 2️⃣ 기존에 있었는데 새로운 데는 없는 것 제거
   for (const key of Object.keys(oldProps)) {
     if (!(key in newProps)) {
-      target.removeAttribute(key);
+      if (key.startsWith("on")) {
+        const eventType = key.toLowerCase().slice(2);
+        removeEvent(target, eventType, oldProps[key]); // 업데이트 시에 해당 핸들러가 removeEvent()를 통해 제거
+      } else {
+        target.removeAttribute(key);
+      }
     }
   }
 }
@@ -67,6 +73,7 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
 
   // 3️⃣ newNode가 없으면 → 기존 노드 제거
   if (!newNode) {
+    // ✅ 이 시점에서 이벤트도 제거
     if (existingElement) {
       parentElement.removeChild(existingElement);
       return;

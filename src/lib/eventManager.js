@@ -64,8 +64,8 @@ export function setupEventListeners(root) {
         const handlers = events?.[type];
 
         // 5. 핸들러 실행
-        if (handlers) {
-          handlers.forEach((fn) => fn(e));
+        if (handlers?.length) {
+          handlers.slice().forEach((fn) => fn(e));
           break; // 가장 가까운 한 요소만 실행 (React 스타일) 딱 한 번만 실행되게 함
         }
 

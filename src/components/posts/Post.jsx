@@ -18,7 +18,7 @@ const LikeButton = ({ onClick, children, likeUsers, activationLike }) => {
     <span
       onClick={(e) => {
         e.preventDefault();
-        handleClick();
+        handleClick(e);
       }}
       className={`like-button cursor-pointer${activationLike ? " text-blue-500" : ""}`}
     >
@@ -44,12 +44,7 @@ export const Post = ({
       </div>
       <p>{content}</p>
       <div className="mt-2 flex justify-between text-gray-500">
-        <LikeButton
-          children={undefined}
-          likeUsers={likeUsers}
-          activationLike={activationLike}
-          onClick={undefined}
-        >
+        <LikeButton likeUsers={likeUsers} activationLike={activationLike}>
           좋아요
         </LikeButton>
         <span>댓글</span>

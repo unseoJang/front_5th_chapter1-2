@@ -28,12 +28,7 @@ export const Navigation = () => {
     <nav className="bg-white shadow-md p-2 sticky top-14">
       <ul className="flex justify-around">
         <li>
-          <Link
-            href="/"
-            className={getNavItemClass("/")}
-            onClick={undefined}
-            children={undefined}
-          >
+          <Link href="/" className={getNavItemClass("/")}>
             홈
           </Link>
         </li>
