@@ -52,27 +52,29 @@ const supportedEvents = ["click", "mouseover", "focus", "keydown", "submit"]; //
  * 이벤트가 발생하면 가장 가까운 상위 요소에서 해당 이벤트를 찾아 실행합니다.
  **/
 export function setupEventListeners(root) {
+  function handleDelegatedEvent(e) {
+    // console.log("handleDelegatedEvent=>", e);
+    // 2. 이벤트 발생한 타겟 가져오기
+    let target = e.target;
+    //  3. 이벤트 전파 따라 위로 올라가며 탐색
+    while (target && target !== root) {
+      //4 . 해당 요소에 등록된 이벤트 핸들러 찾기
+      const events = eventStore.get(target);
+      const handlers = events?.[e.type];
+
+      // 5. 핸들러 실행
+      if (handlers?.length) {
+        handlers.slice().forEach((fn) => fn(e));
+        break; // 가장 가까운 한 요소만 실행 (React 스타일) 딱 한 번만 실행되게 함
+      }
+
+      // 6. 다음 부모로 타겟 이동
+      target = target.parentNode;
+    }
+  }
   //1. 루트에 클릭 리스너 등록
   supportedEvents.forEach((type) => {
-    root.addEventListener(type, (e) => {
-      // 2. 이벤트 발생한 타겟 가져오기
-      let target = e.target;
-      //  3. 이벤트 전파 따라 위로 올라가며 탐색
-      while (target && target !== root) {
-        //4 . 해당 요소에 등록된 이벤트 핸들러 찾기
-        const events = eventStore.get(target);
-        const handlers = events?.[type];
-
-        // 5. 핸들러 실행
-        if (handlers) {
-          handlers.forEach((fn) => fn(e));
-          break; // 가장 가까운 한 요소만 실행 (React 스타일) 딱 한 번만 실행되게 함
-        }
-
-        // 6. 다음 부모로 타겟 이동
-        target = target.parentNode;
-      }
-    });
+    root.addEventListener(type, handleDelegatedEvent, false);
   });
 }
 
@@ -89,6 +91,7 @@ export function setupEventListeners(root) {
  * 이벤트 위임을 사용하여 루트 엘리먼트에 클릭 이벤트 리스너를 설정합니다.
  */
 export function addEvent(element, eventType, handler) {
+  // console.log("addEvent=>", element, eventType, handler);
   // 1. 해당 element에 대한 이벤트 저장 객체가 없으면 새로 만들기
   if (!eventStore.has(element)) {
     eventStore.set(element, {});
@@ -103,7 +106,12 @@ export function addEvent(element, eventType, handler) {
   }
 
   // 4. 핸들러 추가
-  events[eventType].push(handler);
+  // events[eventType].push(handler);
+  // 이미 핸들러가 등록되어 있으면 추가하지 않도록 체크
+  if (!events[eventType].includes(handler)) {
+    events[eventType].push(handler);
+    // console.log("Registered handlers:", events[eventType]);
+  }
 }
 
 /**
@@ -123,17 +131,19 @@ export function addEvent(element, eventType, handler) {
  * @returns
  */
 export function removeEvent(element, eventType, handler) {
+  // console.log("removeEvent", element, eventType, handler);
   // 1. 해당 요소의 이벤트 목록 가져오기 -> ✅ 즉, "없으면 안 건드림"
   const events = eventStore.get(element);
+  // console.log("events=>", events);
   if (!events || !events[eventType]) return;
 
-  // 2. 해당 핸들러만 필터링
-  events[eventType] = events[eventType].filter(
-    (/** @type {any} */ fn) => fn !== handler,
-  );
+  // 핸들러가 있으면 삭제
+  events[eventType] = events[eventType].filter((fn) => fn !== handler);
 
   // 더 이상 등록된 핸들러가 없다면 정리
+  // 핸들러가 없으면 리스너 제거
   if (events[eventType].length === 0) {
+    // element.removeEventListener(eventType, handler); // 이벤트 리스너 제거
     delete events[eventType];
   }
 
