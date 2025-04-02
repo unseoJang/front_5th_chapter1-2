@@ -2,32 +2,25 @@
 import { createVNode } from "../../lib";
 import { toTimeFormat } from "../../utils/index.js";
 import { globalStore } from "../../stores";
+
 export const Post = ({
+  id,
   author,
   time,
   content,
-  likeUsers,
+  likeUsers = [],
   activationLike = false,
 }) => {
   const { loggedIn, currentUser, posts } = globalStore.getState();
+  const { toggleLikePost } = globalStore.actions;
 
   const handleLike = () => {
-    // e.preventDefault();
-    // onClick?.();
     if (!loggedIn) {
       alert("로그인 후 이용해주세요");
       return;
-    } else {
-      const index = likeUsers.indexOf(currentUser);
-      if (index === -1) {
-        console.log("좋아요", likeUsers, currentUser);
-        // 좋아요 추가
-        likeUsers.push(currentUser);
-      } else {
-        // 좋아요 제거
-        likeUsers.splice(index, 1);
-      }
     }
+
+    toggleLikePost(id);
   };
 
   return (

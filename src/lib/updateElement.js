@@ -26,6 +26,10 @@ function updateAttributes(target, originNewProps, originOldProps) {
     delete newProps.className;
   }
 
+  if (newProps.class !== oldProps.class) {
+    target.className = newProps.class; // className 갱신
+  }
+
   // 1️⃣ 새로운 props 순회: 추가되었거나 변경된 것 반영
   for (const [key, value] of Object.entries(newProps)) {
     if (value !== oldProps[key]) {
@@ -34,6 +38,7 @@ function updateAttributes(target, originNewProps, originOldProps) {
         addEvent(target, eventType, value); // 새로운 핸들러 등록
       } else {
         target.setAttribute(key, value); // setAttribute는 오직 노드 요소에만 적용 가능
+        return;
       }
     }
   }
@@ -46,8 +51,10 @@ function updateAttributes(target, originNewProps, originOldProps) {
         removeEvent(target, eventType, oldProps[key]); // 업데이트 시에 해당 핸들러가 removeEvent()를 통해 제거
       } else {
         target.removeAttribute(key);
+        return;
       }
     }
+    return;
   }
 }
 
@@ -73,12 +80,17 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
 
   // 2️⃣ oldNode가 없으면 → 새 노드 추가
   if (!oldNode) {
+    // 기존 노드와 동일한 경우는 추가하지 않도록 방어 코드 추가
+    if (existingElement && newNode === oldNode) {
+      return; // 기존과 동일한 노드는 추가하지 않는다
+    }
     parentElement.appendChild(createElement(newNode));
     return;
   }
 
   // 3️⃣ newNode가 없으면 → 기존 노드 제거
   if (!newNode) {
+    // console.log("bbbbbb");
     // ✅ 이 시점에서 이벤트도 제거
     if (existingElement) {
       parentElement.removeChild(existingElement);
@@ -104,6 +116,12 @@ export function updateElement(parentElement, newNode, oldNode, index = 0) {
 
   // 6️⃣ props가 달라졌는지 확인하고 DOM 속성 업데이트
   if (existingElement instanceof HTMLElement) {
+    // 새로운 props와 이전 props를 비교하여 변경되었는지 확인
+    // const arePropsDifferent = Object.entries(newProps).some(
+    //   ([key, value]) => value !== oldProps[key],
+    // );
+    // console.log("arePropsDifferent==>", arePropsDifferent);
+
     updateAttributes(existingElement, newNode.props, oldNode.props);
   }
 

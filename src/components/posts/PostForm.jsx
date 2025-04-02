@@ -5,12 +5,13 @@ import { globalStore } from "../../stores";
 function addPost(content) {
   const { posts } = globalStore.getState();
   const { currentUser } = globalStore.getState();
+
   const post = {
     id: posts.length + 1,
     author: currentUser.username,
     time: Date.now(),
     content,
-    likeUsers: [],
+    likeUsers: [], // 각 포스트의 likeUsers 배열을 빈 배열로 초기화
   };
 
   globalStore.setState({

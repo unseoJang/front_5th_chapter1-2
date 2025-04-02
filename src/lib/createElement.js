@@ -57,6 +57,7 @@ export function createElement(vNode) {
  */
 function updateAttributes($el, props) {
   if (props) {
+    // console.log("props=>", props);
     Object.entries(props).forEach(([key, value]) => {
       // 1. 이벤트 핸들러는 addEvent로 처리
       if (key.startsWith("on") && typeof props[key] === "function") {

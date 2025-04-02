@@ -89,6 +89,7 @@ export function setupEventListeners(root) {
  * 이벤트 위임을 사용하여 루트 엘리먼트에 클릭 이벤트 리스너를 설정합니다.
  */
 export function addEvent(element, eventType, handler) {
+  // console.log(element, eventType, handler);
   // 1. 해당 element에 대한 이벤트 저장 객체가 없으면 새로 만들기
   if (!eventStore.has(element)) {
     eventStore.set(element, {});
@@ -104,14 +105,6 @@ export function addEvent(element, eventType, handler) {
 
   // 4. 핸들러 추가
   events[eventType].push(handler);
-
-  // 5. 실제로 DOM에 이벤트 리스너를 수동으로 추가 (이벤트 위임 방식)
-  // element.addEventListener(eventType, (e) => {
-  //   // 6. eventStore에서 해당 이벤트에 등록된 핸들러들을 실행
-  //   events[eventType].forEach((handler) => {
-  //     handler(e); // 이벤트 객체를 핸들러에 전달
-  //   });
-  // });
 }
 
 /**
