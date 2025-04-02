@@ -41,7 +41,7 @@ export function createElement(vNode) {
   // 자식 노드 처리
   if (vNode.children && Array.isArray(vNode.children)) {
     vNode.children.forEach((child) => {
-      el.appendChild(createElement(child));
+      el.appendChild(createElement(child)); // 자식 노드 처리
     });
   }
 
@@ -58,14 +58,17 @@ export function createElement(vNode) {
 function updateAttributes($el, props) {
   if (props) {
     Object.entries(props).forEach(([key, value]) => {
-      if (key.startsWith("on") && typeof value === "function") {
+      // 1. 이벤트 핸들러는 addEvent로 처리
+      if (key.startsWith("on") && typeof props[key] === "function") {
         // 🔸 key가 "onClick", "onInput" 같은 이벤트면
-        const eventName = key.slice(2).toLowerCase(); // "Click" → "click"
-        // console.log("🔧 addEvent:", key, "->", eventName, "on", $el);
-        addEvent($el, eventName, value); // 이벤트 등록
+        const eventType = key.slice(2).toLowerCase(); // "Click" → "click"
+        // // console.log("🔧 addEvent:", key, "->", eventName, "on", $el);
+        addEvent($el, eventType, value); // 이벤트 등록
+        return; // 🔥 핵심! 더 이상 DOM에 속성으로 붙이면 안 됨
       } else if (key === "className") {
         // 🔸 React/JSX에서의 className → 실제 DOM에선 class
         $el.setAttribute("class", value);
+        return;
       } else {
         // 🔸 나머지는 그대로 DOM 속성으로 적용
         $el.setAttribute(key, value);

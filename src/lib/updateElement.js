@@ -1,5 +1,5 @@
-// import { addEvent, removeEvent } from "./eventManager";
-import { removeEvent } from "./eventManager";
+import { addEvent, removeEvent } from "./eventManager";
+// import { removeEvent } from "./eventManager";
 import { createElement } from "./createElement.js";
 
 /**
@@ -29,9 +29,15 @@ function updateAttributes(target, originNewProps, originOldProps) {
   // 1️⃣ 새로운 props 순회: 추가되었거나 변경된 것 반영
   for (const [key, value] of Object.entries(newProps)) {
     if (value !== oldProps[key]) {
-      target.setAttribute(key, value); // setAttribute는 오직 노드 요소에만 적용 가능
+      if (key.startsWith("on")) {
+        const eventType = key.toLowerCase().slice(2);
+        addEvent(target, eventType, value); // 새로운 핸들러 등록
+      } else {
+        target.setAttribute(key, value); // setAttribute는 오직 노드 요소에만 적용 가능
+      }
     }
   }
+
   // 2️⃣ 기존에 있었는데 새로운 데는 없는 것 제거
   for (const key of Object.keys(oldProps)) {
     if (!(key in newProps)) {
