@@ -13,6 +13,7 @@ import { addEvent } from "./eventManager";
  * - 이 함수는 React/JSX에서 사용하는 createElement와 유사한 역할을 한다.
  */
 export function createElement(vNode) {
+  console.log("vNode=>", vNode);
   const vNodeType = getTypes(vNode);
   const invalidTypes = ["null", "undefined", "boolean"];
 
@@ -21,7 +22,7 @@ export function createElement(vNode) {
   }
 
   const textNodeTypes = ["string", "number"];
-
+  console.log("vNodeType=>", vNodeType);
   if (textNodeTypes.includes(vNodeType)) {
     // 문자열이나 숫자 타입인 경우
     return document.createTextNode(vNode);

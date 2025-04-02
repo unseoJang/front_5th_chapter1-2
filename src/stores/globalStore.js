@@ -55,6 +55,7 @@ export const globalStore = createStore(
       return { ...state, currentUser: null, loggedIn: false };
     },
     toggleLikePost(state, postId) {
+      // console.log("postId", postId);
       if (!state.loggedIn) {
         return { ...state };
       }

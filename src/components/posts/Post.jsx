@@ -19,9 +19,14 @@ export const Post = ({
       alert("로그인 후 이용해주세요");
       return;
     }
-
     toggleLikePost(id);
+    // const post = posts.find(post => post.id === id);
+    // console.log("likeUsers", likeUsers);
+    // console.log("Updated activationLike:", post.activationLike); // 상태 변경 확인
   };
+  // 상태가 바뀐 후에 값을 출력
+  // console.log("likeUsers", likeUsers);
+  // console.log("activationLike", activationLike)
 
   return (
     <div className="bg-white rounded-lg shadow p-4 mb-4">

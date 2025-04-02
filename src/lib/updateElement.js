@@ -14,48 +14,86 @@ import { createElement } from "./createElement.js";
  * @param {*} originNewProps - 새롭게 반영할 속성(props) 객체
  * @param {*} originOldProps - 이전 렌더링 시점의 속성(props) 객체
  */
+// function updateAttributes(target, originNewProps, originOldProps) {
+//   if (!target || target.nodeType !== 1) return; // ✅ 방어 코드 추가! 요소 노드가 아닐 경우 바로 리턴
+//   // 코드 내부에서 null, undefined로 처리 되지 않게 안전하게 처리
+//   const newProps = originNewProps || {};
+//   const oldProps = originOldProps || {};
+
+//   // ✅ JSX 호환: className → class 변환
+//   if ("className" in newProps) {
+//     newProps.class = newProps.className;
+//     delete newProps.className;
+//   }
+
+//   if (newProps.class !== oldProps.class) {
+//     target.className = newProps.class; // className 갱신
+//   }
+
+//   // 1️⃣ 새로운 props 순회: 추가되었거나 변경된 것 반영
+//   for (const [key, value] of Object.entries(newProps)) {
+//     // console.log("key=>", key);
+//     if (value !== oldProps[key]) {
+//       if (key.startsWith("on")) {
+//         const eventType = key.toLowerCase().slice(2);
+//         addEvent(target, eventType, value); // 새로운 핸들러 등록
+//       } else {
+//         target.setAttribute(key, value); // setAttribute는 오직 노드 요소에만 적용 가능
+//       }
+//     }
+//   }
+
+//   // 2️⃣ 이전 props 순회: 삭제된 것 제거
+//   for (const [key, value] of Object.entries(oldProps)) {
+//     if (!(key in newProps)) {
+//       console.log("key=>", key);
+//       const eventType = key.toLowerCase().slice(2);
+//       removeEvent(target, eventType, value); // 이전 핸들러 제거
+
+//       // if (key.startsWith("on")) {
+//       //   const eventType = key.toLowerCase().slice(2);
+//       //   console.log("key=>", key);
+//       //   removeEvent(target, eventType, value); // 이전 핸들러 제거
+//       // } else {
+//       //   target.removeAttribute(key); // setAttribute는 오직 노드 요소에만 적용 가능
+//       // }
+//     }
+//   }
+// }
+
 function updateAttributes(target, originNewProps, originOldProps) {
-  if (!target || target.nodeType !== 1) return; // ✅ 방어 코드 추가! 요소 노드가 아닐 경우 바로 리턴
-  // 코드 내부에서 null, undefined로 처리 되지 않게 안전하게 처리
-  const newProps = originNewProps || {};
-  const oldProps = originOldProps || {};
+  const newProps = { ...originNewProps };
+  const oldProps = { ...originOldProps };
 
-  // ✅ JSX 호환: className → class 변환
-  if ("className" in newProps) {
-    newProps.class = newProps.className;
-    delete newProps.className;
-  }
-
-  if (newProps.class !== oldProps.class) {
-    target.className = newProps.class; // className 갱신
-  }
-
-  // 1️⃣ 새로운 props 순회: 추가되었거나 변경된 것 반영
-  for (const [key, value] of Object.entries(newProps)) {
-    if (value !== oldProps[key]) {
-      if (key.startsWith("on")) {
-        const eventType = key.toLowerCase().slice(2);
-        addEvent(target, eventType, value); // 새로운 핸들러 등록
-      } else {
-        target.setAttribute(key, value); // setAttribute는 오직 노드 요소에만 적용 가능
-        return;
-      }
+  // 이전 이벤트 핸들러 제거
+  Object.keys(oldProps).forEach((propName) => {
+    if (
+      propName.startsWith("on") &&
+      (!newProps[propName] || newProps[propName] !== oldProps[propName])
+    ) {
+      const eventType = propName.toLowerCase().substring(2);
+      removeEvent(target, eventType, oldProps[propName]);
     }
-  }
+  });
 
-  // 2️⃣ 기존에 있었는데 새로운 데는 없는 것 제거
-  for (const key of Object.keys(oldProps)) {
-    if (!(key in newProps)) {
-      if (key.startsWith("on")) {
-        const eventType = key.toLowerCase().slice(2);
-        removeEvent(target, eventType, oldProps[key]); // 업데이트 시에 해당 핸들러가 removeEvent()를 통해 제거
-      } else {
-        target.removeAttribute(key);
-        return;
-      }
+  // 새로운 속성 추가 및 변경
+  Object.keys(newProps).forEach((propName) => {
+    if (propName.startsWith("on")) {
+      const eventType = propName.toLowerCase().substring(2);
+      addEvent(target, eventType, newProps[propName]);
+    } else if (propName === "className") {
+      target.setAttribute("class", newProps[propName]);
+    } else {
+      target.setAttribute(propName, newProps[propName]);
     }
-    return;
-  }
+  });
+
+  // 삭제된 속성 제거
+  Object.keys(oldProps).forEach((propName) => {
+    if (!(propName in newProps)) {
+      target.removeAttribute(propName);
+    }
+  });
 }
 
 /**
@@ -74,63 +112,58 @@ function updateAttributes(target, originNewProps, originOldProps) {
  * @returns {void}
  */
 export function updateElement(parentElement, newNode, oldNode, index = 0) {
-  if (!parentElement) return; // ✅ 방어 코드 추가
-  // 1️⃣ 부모 요소에서 현재 index 번째 자식 노드를 가져온다
+  if (!parentElement) return;
+
   const existingElement = parentElement.childNodes[index];
 
-  // 2️⃣ oldNode가 없으면 → 새 노드 추가
+  // 1. oldNode가 없으면 새로 추가
   if (!oldNode) {
-    // 기존 노드와 동일한 경우는 추가하지 않도록 방어 코드 추가
-    if (existingElement && newNode === oldNode) {
-      return; // 기존과 동일한 노드는 추가하지 않는다
-    }
+    if (existingElement && newNode === oldNode) return;
     parentElement.appendChild(createElement(newNode));
     return;
   }
 
-  // 3️⃣ newNode가 없으면 → 기존 노드 제거
+  // 2. newNode가 없으면 제거
   if (!newNode) {
-    // console.log("bbbbbb");
-    // ✅ 이 시점에서 이벤트도 제거
-    if (existingElement) {
-      parentElement.removeChild(existingElement);
-      return;
-    }
+    parentElement.removeChild(existingElement);
     return;
   }
 
-  // 4️⃣ 태그 이름이 다르면 → 새로 교체
-  if (newNode.type !== oldNode?.type) {
+  // 3. 타입이 다르면 교체
+  if (newNode.type !== oldNode.type) {
     parentElement.replaceChild(createElement(newNode), existingElement);
     return;
   }
 
-  // 5️⃣ 텍스트 노드일 경우 → 내용 비교
+  // 4. 텍스트 노드면 교체
   if (typeof newNode === "string" || typeof newNode === "number") {
     if (newNode !== oldNode) {
-      existingElement.textContent = String(newNode);
+      existingElement.textContent = newNode;
     }
-
     return;
   }
 
-  // 6️⃣ props가 달라졌는지 확인하고 DOM 속성 업데이트
+  // 5. props 업데이트
   if (existingElement instanceof HTMLElement) {
-    // 새로운 props와 이전 props를 비교하여 변경되었는지 확인
-    // const arePropsDifferent = Object.entries(newProps).some(
-    //   ([key, value]) => value !== oldProps[key],
-    // );
-    // console.log("arePropsDifferent==>", arePropsDifferent);
-
     updateAttributes(existingElement, newNode.props, oldNode.props);
   }
 
-  // 7️⃣ 자식 노드 비교 (재귀 호출)
+  // 6. 자식 노드 처리
   const newChildren = newNode.children || [];
   const oldChildren = oldNode.children || [];
   const maxLength = Math.max(newChildren.length, oldChildren.length);
 
-  // newChildren, oldChildren 의 갯수가 끝날떄까지 for문 처리
+  // 🔥 텍스트 노드만 있는 경우 중첩 방지를 위해 textContent로 교체
+  const isAllText =
+    newChildren.every((c) => typeof c === "string" || typeof c === "number") &&
+    oldChildren.every((c) => typeof c === "string" || typeof c === "number");
+
+  if (isAllText && existingElement.textContent !== newChildren.join("")) {
+    existingElement.textContent = newChildren.join("");
+    return;
+  }
+
+  // 🔁 재귀 비교
   for (let i = 0; i < maxLength; i++) {
     if (existingElement instanceof HTMLElement) {
       updateElement(existingElement, newChildren[i], oldChildren[i], i);
