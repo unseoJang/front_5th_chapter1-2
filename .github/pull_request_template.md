@@ -49,6 +49,8 @@ https://unseojang.github.io/front_5th_chapter1-2/
 
 <!-- 과제에 대한 회고를 작성해주세요 -->
 
+- 
+
 ### 기술적 성장
 
 <!-- 예시
