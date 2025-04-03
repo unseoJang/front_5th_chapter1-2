@@ -1,9 +1,13 @@
 import { defineConfig as defineTestConfig, mergeConfig } from "vitest/config";
 import { defineConfig } from "vite";
-import { resolve } from "path";
+
+// GitHub Pages용 base 설정
+const base =
+  process.env.NODE_ENV === "production" ? "/front_5th_chapter1-2/" : "/";
+
 export default mergeConfig(
   defineConfig({
-    base: "./",
+    base, // ✅ 여기에 base 넣기
     esbuild: {
       jsxFactory: "createVNode",
     },
@@ -11,15 +15,6 @@ export default mergeConfig(
       esbuildOptions: {
         jsx: "transform",
         jsxFactory: "createVNode",
-      },
-    },
-    build: {
-      rollupOptions: {
-        input: {
-          main: resolve(__dirname, "index.html"),
-          hash: resolve(__dirname, "index.hash.html"),
-          notFound: resolve(__dirname, "404.html"),
-        },
       },
     },
   }),

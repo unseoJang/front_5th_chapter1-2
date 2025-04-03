@@ -9,6 +9,7 @@
   },
   "type": "module",
   "scripts": {
+    "predeploy": "npm run build",
     "dev": "vite",
     "dev:hash": "vite --open ./index.hash.html",
     "build": "vite build",
